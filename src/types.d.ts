@@ -21,3 +21,20 @@ interface Image {
   height: number;
   width: number;
 }
+
+interface Playlist {
+  name: string;
+  description: string;
+  tracks: {
+    items: {
+      track: {
+        name: string;
+        artists: { name: string }[];
+        preview_url: string | null;
+      };
+    }[];
+  };
+  external_urls: {
+    spotify: string;
+  };
+}
