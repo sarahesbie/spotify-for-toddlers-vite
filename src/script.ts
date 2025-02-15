@@ -68,21 +68,24 @@ function displayPlaylist(playlist: Playlist) {
   }
 
   const trackList = document.createElement("ul");
+
   playlist.tracks.items.forEach((trackItem) => {
     const track = trackItem.track;
     if (!track) return;
 
     const listItem = document.createElement("li");
 
-    listItem.innerHTML = `
-	      <strong>${track.name}</strong> - ${track.artists
-      .map((artist) => artist.name)
-      .join(", ")}
-      <br>
-      <audio controls src="${
-        track.preview_url || ""
-      }">Preview not available</audio>
-	`;
+    const isEpisode = track.type === "episode";
+    const trackLink = document.createElement("a");
+    trackLink.href = `/player.html?trackId=${encodeURIComponent(
+      track.id
+    )}&type=${isEpisode ? "episode" : "track"}`;
+    trackLink.innerText = `${track.name} - ${
+      track.artists?.map((artist) => artist.name).join(", ") || "Podcast"
+    }`;
+    trackLink.target = "_self";
+
+    listItem.appendChild(trackLink);
     trackList.appendChild(listItem);
   });
   container.appendChild(trackList);
