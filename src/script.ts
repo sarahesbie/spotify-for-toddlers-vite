@@ -4,7 +4,7 @@ const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 if (!CLIENT_ID) {
   throw new Error("Missing environment variable: VITE_SPOTIFY_CLIENT_ID");
 }
-
+const PLAYLIST_ID = "3dWNkA8Df6btbbdTcXVQe5";
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
 
@@ -14,59 +14,76 @@ async function main() {
   } else {
     try {
       const accessToken = await getAccessToken(code);
-      const profile = await fetchProfile(accessToken);
-      populateUI(profile);
+      const playlist = await fetchPlaylist(accessToken, PLAYLIST_ID);
+      displayPlaylist(playlist);
     } catch (error) {
       console.error("Error during authentication:", error);
     }
   }
 }
-
 main().catch(console.error);
 
 /**
- * Fetches the user's Spotify profile using an access token.
+ * Fetches playlist data from Spotify API
  */
-async function fetchProfile(token: string): Promise<UserProfile> {
-  const result = await fetch("https://api.spotify.com/v1/me", {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
 
+async function fetchPlaylist(
+  token: string,
+  playlistId: string
+): Promise<Playlist> {
+  const result = await fetch(
+    `https://api.spotify.com/v1/playlists/${playlistId}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   if (!result.ok) {
-    throw new Error("Failed to fetch profile");
+    throw new Error("failed to fetch playlist");
   }
-
   return await result.json();
 }
 
 /**
- * Updates the UI with the user's Spotify profile information.
+ * REnders playlist details in the UI
  */
-function populateUI(profile: UserProfile) {
-  document.getElementById("displayName")!.innerText =
-    profile.display_name || "N/A";
 
-  const avatar = document.getElementById("avatar");
-  if (avatar && profile.images.length > 0) {
-    avatar.setAttribute("src", profile.images[0].url);
+function displayPlaylist(playlist: Playlist) {
+  const container = document.getElementById("playlistContainer");
+  if (!container) {
+    console.error("Playlist container not found!");
+    return;
   }
 
-  document.getElementById("id")!.innerText = profile.id || "N/A";
-  document.getElementById("email")!.innerText = profile.email || "N/A";
+  container.innerHTML = "";
 
-  const uriElement = document.getElementById("uri");
-  if (uriElement) {
-    uriElement.innerText = profile.uri || "N/A";
-    uriElement.setAttribute("href", profile.external_urls?.spotify || "#");
+  const title = document.createElement("h2");
+  title.innerText = playlist.name;
+  container.appendChild(title);
+
+  if (playlist.description) {
+    const description = document.createElement("p");
+    description.innerHTML = playlist.description;
+    container.appendChild(description);
   }
 
-  const urlElement = document.getElementById("url");
-  if (urlElement) {
-    urlElement.innerText = profile.href || "N/A";
-    urlElement.setAttribute("href", profile.href || "#");
-  }
+  const trackList = document.createElement("ul");
+  playlist.tracks.items.forEach((trackItem) => {
+    const track = trackItem.track;
+    if (!track) return;
 
-  document.getElementById("imgUrl")!.innerText =
-    profile.images[0]?.url || "N/A";
+    const listItem = document.createElement("li");
+
+    listItem.innerHTML = `
+	      <strong>${track.name}</strong> - ${track.artists
+      .map((artist) => artist.name)
+      .join(", ")}
+      <br>
+      <audio controls src="${
+        track.preview_url || ""
+      }">Preview not available</audio>
+	`;
+    trackList.appendChild(listItem);
+  });
+  container.appendChild(trackList);
 }
