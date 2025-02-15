@@ -31,6 +31,8 @@ interface Playlist {
         name: string;
         artists: { name: string }[];
         preview_url: string | null;
+        id: string;
+        type: string;
       };
     }[];
   };
