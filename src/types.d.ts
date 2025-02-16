@@ -29,10 +29,15 @@ interface Playlist {
     items: {
       track: {
         name: string;
-        artists: { name: string }[];
-        preview_url: string | null;
+        artists?: { name: string }[];
         id: string;
-        type: string;
+        type: "track" | "episode";
+
+        album?: {
+          images: { url: string }[];
+        };
+        images?: { url: string }[];
+        preview_url: string | null;
       };
     }[];
   };
