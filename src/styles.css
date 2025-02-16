@@ -1,0 +1,35 @@
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  padding: 20px;
+}
+
+.track-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.track-card:hover {
+  transform: scale(1.05);
+}
+
+.track-card img {
+  width: 100%;
+  max-width: 150px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.track-card a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #333;
+}
