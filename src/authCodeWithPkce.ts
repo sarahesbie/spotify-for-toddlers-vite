@@ -57,7 +57,15 @@ export async function getAccessToken(code: string): Promise<string> {
     throw new Error("Failed to retrieve access token");
   }
 
-  const { access_token } = await result.json();
+  const { access_token, expires_in, refresh_token } = await result.json();
+
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem(
+    "expires_at",
+    (Date.now() + expires_in * 1000).toString()
+  );
+  localStorage.setItem("refresh_token", refresh_token);
+
   return access_token;
 }
 
@@ -86,4 +94,62 @@ async function generateCodeChallenge(codeVerifier: string) {
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
+}
+
+export async function getValidAccessToken(): Promise<string> {
+  const accessToken = localStorage.getItem("access_token");
+  const expiresAt = localStorage.getItem("expires_at");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (accessToken && expiresAt && Date.now() < parseInt(expiresAt, 10)) {
+    console.log("using stored access token");
+    return accessToken;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+
+  if (code) {
+    console.log("Detected OAuth callback, exchanging code for access token...");
+    const newAccessToken = await getAccessToken(code);
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    return newAccessToken;
+  }
+
+  if (!refreshToken) {
+    console.warn("no refresh token available, redirecting to login");
+    redirectToAuthCodeFlow();
+    throw new Error("no refresh token availble");
+  }
+
+  console.log("refreshing access token");
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+  });
+
+  const response = await fetch(SPOTIFY_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params,
+  });
+
+  if (!response.ok) {
+    console.error("failed to refresh access token, redirecting to login....");
+    redirectToAuthCodeFlow();
+    throw new Error("Failed to refresh access token");
+  }
+
+  const { access_token, expires_in } = await response.json();
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem(
+    "expires_at",
+    (Date.now() + expires_in * 1000).toString()
+  );
+
+  console.log("✅ Successfully refreshed access token.");
+  return access_token;
 }

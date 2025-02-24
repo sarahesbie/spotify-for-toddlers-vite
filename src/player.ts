@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", initializeSpotifyPlayer);
 
 function initializeSpotifyPlayer(): void {
   const params = new URLSearchParams(window.location.search);
-  const trackId = params.get("track");
+  const trackId = params.get("trackId");
   const type = params.get("type") as "track" | "episode";
 
   if (!trackId || type) {
@@ -13,10 +13,7 @@ function initializeSpotifyPlayer(): void {
   updateSpotifyPlayer(trackId, type);
 }
 
-function updateSpotifyPlayer(
-  trackId: string,
-  type: "track" | "episiode"
-): void {
+function updateSpotifyPlayer(trackId: string, type: "track" | "episode"): void {
   const embedUrl = `https://open.spotify.com/embed/${type}/${trackId}`;
   const playerFrame = document.getElementById(
     "spotifyPlayer"

@@ -1,28 +1,26 @@
 import "./styles.css";
 import { fetchPlaylist, displayPlaylist } from "./playlist";
-import { redirectToAuthCodeFlow, getAccessToken } from "./authCodeWithPkce";
-
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-if (!CLIENT_ID) {
-  throw new Error("Missing environment variable: VITE_SPOTIFY_CLIENT_ID");
-}
+import { getValidAccessToken } from "./authCodeWithPkce";
 
 async function main() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  const PLAYLIST_ID = "3dWNkA8Df6btbbdTcXVQe5";
+  try {
+    const accessToken = await getValidAccessToken();
 
-  if (!code) {
-    redirectToAuthCodeFlow();
-  } else {
-    try {
-      const accessToken = await getAccessToken(code);
-      const playlist = await fetchPlaylist(accessToken, PLAYLIST_ID);
-      displayPlaylist(playlist);
-    } catch (error) {
-      console.error("Error during authentication or playlist fetch:", error);
+    if (!accessToken) {
+      console.warn("🔄 Waiting for authentication, skipping playlist fetch.");
+      setTimeout(main, 2000);
+      return;
     }
+
+    console.log("🎵 Fetching playlist...");
+    const goodnightWorldPlaylistId = "3dWNkA8Df6btbbdTcXVQe5";
+    const goodnightWorldPlaylist = await fetchPlaylist(
+      accessToken,
+      goodnightWorldPlaylistId
+    );
+    displayPlaylist(goodnightWorldPlaylist);
+  } catch (error) {
+    console.error("error fetching playlist");
   }
 }
-
-main().catch(console.error);
+main();

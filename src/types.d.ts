@@ -36,7 +36,10 @@ interface Playlist {
         album?: {
           images: { url: string }[];
         };
-        images?: { url: string }[];
+        images?: { url: string }[]; // ✅ Direct episode image
+        show?: {
+          images: { url: string }[]; // ✅ Podcast show image fallback
+        };
         preview_url: string | null;
       };
     }[];

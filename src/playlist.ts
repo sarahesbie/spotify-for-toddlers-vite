@@ -48,19 +48,27 @@ export function displayPlaylist(playlist: Playlist) {
     const trackCard = document.createElement("div");
     trackCard.classList.add("track-card");
 
-    const thumbnail = document.createElement("img");
-    thumbnail.src =
-      track.album?.images[0]?.url ||
-      track.images?.[0]?.url ||
-      "fallback-image.jpg";
-    thumbnail.alt = track.name;
+    let imageUrl = "https://placehold.co/400";
 
+    if (isEpisode) {
+      if (track.images?.length) {
+        imageUrl = track.images[0].url;
+      } else if (track.show?.images?.length) {
+        imageUrl = track.show.images[0].url;
+      }
+    } else if (!isEpisode && track.album?.images?.length) {
+      imageUrl = track.album.images[0].url;
+    }
+
+    const thumbnail = document.createElement("img");
+    thumbnail.src = imageUrl;
+    thumbnail.alt = track.name;
     const trackLink = document.createElement("a");
     trackLink.href = `/player.html?trackId=${encodeURIComponent(
       track.id
     )}&type=${isEpisode ? "episode" : "track"}`;
     trackLink.innerText = track.name;
-    trackLink.target = "_blank";
+    trackLink.target = "_self";
 
     trackCard.appendChild(thumbnail);
     trackCard.appendChild(trackLink);
