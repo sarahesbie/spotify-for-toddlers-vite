@@ -3,18 +3,21 @@ document.addEventListener("DOMContentLoaded", initializeSpotifyPlayer);
 function initializeSpotifyPlayer(): void {
   const params = new URLSearchParams(window.location.search);
   const trackId = params.get("trackId");
-  const type = params.get("type") as "track" | "episode";
 
-  if (!trackId || type) {
-    displayError("Missing track Id or type");
+  if (!trackId) {
+    displayError("Missing track ID");
     return;
   }
 
-  updateSpotifyPlayer(trackId, type);
+  updateSpotifyPlayer(trackId);
 }
 
-function updateSpotifyPlayer(trackId: string, type: "track" | "episode"): void {
-  const embedUrl = `https://open.spotify.com/embed/${type}/${trackId}`;
+/**
+ * Updates the Spotify iframe player with the correct embed URL.
+ */
+function updateSpotifyPlayer(trackId: string): void {
+  const embedUrl = `https://open.spotify.com/embed/track/${trackId}`;
+
   const playerFrame = document.getElementById(
     "spotifyPlayer"
   ) as HTMLIFrameElement | null;
@@ -23,9 +26,13 @@ function updateSpotifyPlayer(trackId: string, type: "track" | "episode"): void {
     displayError("Player element not found");
     return;
   }
+
   playerFrame.src = embedUrl;
 }
 
+/**
+ * Displays an error message in the body.
+ */
 function displayError(message: string): void {
-  document.body.innerHTML = `<h2> Error: ${message}</h2>`;
+  document.body.innerHTML = `<h2>Error: ${message}</h2>`;
 }

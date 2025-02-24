@@ -29,16 +29,11 @@ interface Playlist {
     items: {
       track: {
         name: string;
-        artists?: { name: string }[];
+        artists: { name: string }[];
         id: string;
-        type: "track" | "episode";
-
-        album?: {
+        type: "track";
+        album: {
           images: { url: string }[];
-        };
-        images?: { url: string }[]; // ✅ Direct episode image
-        show?: {
-          images: { url: string }[]; // ✅ Podcast show image fallback
         };
         preview_url: string | null;
       };

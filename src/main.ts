@@ -12,13 +12,9 @@ async function main() {
       return;
     }
 
-    console.log("🎵 Fetching playlist...");
-    const goodnightWorldPlaylistId = "3dWNkA8Df6btbbdTcXVQe5";
-    const goodnightWorldPlaylist = await fetchPlaylist(
-      accessToken,
-      goodnightWorldPlaylistId
-    );
-    displayPlaylist(goodnightWorldPlaylist);
+    const bowiesPlaylistId = "3RpVLEl5TyPTJVoePB5pEz";
+    const bowiesPlaylist = await fetchPlaylist(accessToken, bowiesPlaylistId);
+    displayPlaylist(bowiesPlaylist);
   } catch (error) {
     console.error("error fetching playlist");
   }
